@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Balloon Clicker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #game {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: url('background.jpg') no-repeat center center;
+      background-size: cover;
+    }
+
+    #headline {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px black;
+      z-index: 9999;
+    }
+
+    #balloon {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 100px;
+      background: url('balun.jpg') no-repeat center/contain;
+      background-size: contain;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .balloon-fly {
+      position: absolute;
+      width: 60px;
+      height: 100px;
+      background: url('balun.jpg') no-repeat center/contain;
+      background-size: contain;
+      pointer-events: none;
+    }
+
+    #stats {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 10px;
+      color: white;
+    }
+
+    .stat-box {
+      color: white;
+    }
+
+    #reset {
+      margin-top: 10px;
+      padding: 5px 10px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <h1 id="headline">This is to count your clicking speed</h1>
+    <div id="balloon"></div>
+
+    <div id="stats">
+      <div class="stat-box">CPS: <span id="cps">0</span> | High: <span id="highCps">0</span></div>
+      <div class="stat-box">CPM: <span id="cpm">0</span> | High: <span id="highCpm">0</span></div>
+      <div class="stat-box">Total Clicks: <span id="total">0</span></div>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const balloon = document.getElementById('balloon');
+    const game = document.getElementById('game');
+    const cpsEl = document.getElementById('cps');
+    const cpmEl = document.getElementById('cpm');
+    const totalEl = document.getElementById('total');
+    const highCpsEl = document.getElementById('highCps');
+    const highCpmEl = document.getElementById('highCpm');
+
+    let totalClicks = 0, cps = 0, cpm = 0, highCps = 0, highCpm = 0;
+
+    setInterval(() => {
+      if (cps > highCps) highCps = cps;
+      cps = 0;
+      cpsEl.textContent = cps;
+      highCpsEl.textContent = highCps;
+    }, 1000);
+
+    setInterval(() => {
+      if (cpm > highCpm) highCpm = cpm;
+      cpm = 0;
+      cpmEl.textContent = cpm;
+      highCpmEl.textContent = highCpm;
+    }, 60000);
+
+    balloon.addEventListener('click', () => {
+      totalClicks++;
+      cps++;
+      cpm++;
+      totalEl.textContent = totalClicks;
+      cpsEl.textContent = cps;
+      cpmEl.textContent = cpm;
+
+      const fly = document.createElement('div');
+      fly.className = 'balloon-fly';
+      const startX = window.innerWidth / 2 - 30 + (Math.random() * 60 - 30);
+      const startY = window.innerHeight - 120;
+      fly.style.left = `${startX}px`;
+      fly.style.top = `${startY}px`;
+      game.appendChild(fly);
+
+      let y = startY;
+      const x = startX;
+      const drift = (Math.random() * 2 - 1) * 1; // small horizontal drift
+
+      function animate() {
+        y -= 2 + Math.random() * 1;
+        fly.style.top = `${y}px`;
+        fly.style.left = `${x + (startY - y) * drift}px`;
+        if (y + 100 > 0) {
+          requestAnimationFrame(animate);
+        } else {
+          fly.remove();
+        }
+      }
+      animate();
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      totalClicks = cps = cpm = highCps = highCpm = 0;
+      cpsEl.textContent = cpmEl.textContent = totalEl.textContent = '0';
+      highCpsEl.textContent = highCpmEl.textContent = '0';
+    });
+  </script>
+</body>
+</html>
